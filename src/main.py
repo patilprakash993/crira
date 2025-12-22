@@ -50,7 +50,8 @@ def main() -> None:
             logger.warning("Skipping empty review entry.")
             continue
         try:
-            logger.info("Processing review: %s", (review_text[:80] + "...") if len(review_text) > 80 else review_text)
+            summary = (review_text[:80] + "...") if len(review_text) > 80 else review_text
+            logger.info("Processing review: %s", summary)
             r = process_review(review_text)
             results.append(r)
         except Exception:

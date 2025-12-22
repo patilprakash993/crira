@@ -6,39 +6,42 @@ import os
 from typing import Any, Dict, Optional
 import logging
 
-from config import GOOGLE_API_KEY, USE_REAL_LLM, LLM_MODEL
+from config import GOOGLE_API_KEY, USE_REAL_LLM, LLM_MODEL, DUMMY_LLM_KEYWORDS
 from utils import escape_brackets
 
 logger = logging.getLogger(__name__)
 
-# Delay import of openai until needed
-if USE_REAL_LLM:
-    try:
-        import google.generativeai as genai  # type: ignore
-        genai.configure(api_key=GOOGLE_API_KEY)
-    except ImportError:
-        logger.error("google-generativeai is not installed. Please run 'pip install google-generativeai'")
-        genai = None
 
-
-def call_llm(prompt: str, system: str = "", max_tokens: int = 300) -> str:
+def call_llm(prompt: str, system: str = "", max_tokens: int = 400) -> str:
     """
     Calls the configured LLM. If USE_REAL_LLM is False, uses a deterministic dummy.
     The function returns the raw text response from the LLM.
     """
-    if USE_REAL_LLM and genai:
+    if USE_REAL_LLM:
         try:
+            # JIT (Just-In-Time) import and configuration
+            import google.generativeai as genai
+
+            if not GOOGLE_API_KEY:
+                raise ValueError("GOOGLE_API_KEY is not set, but USE_REAL_LLM is true.")
+
+            genai.configure(api_key=GOOGLE_API_KEY)
+
             model = genai.GenerativeModel(
                 LLM_MODEL,
                 system_instruction=system,
                 # We handle safety via input sanitization; prevent Gemini from blocking valid reviews.
                 safety_settings={'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE', 'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE', 'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE', 'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE'}
             )
-            response = model.generate_content(prompt, generation_config={"max_output_tokens": max_tokens, "temperature": 0.0})
+            response = model.generate_content(prompt, generation_config={"max_output_tokens": max_tokens, "temperature": 0.7})
             return response.text
+        except ImportError:
+            logger.error("google-generativeai is not installed. Please run 'pip install google-generativeai'")
+        except ValueError as e:
+            logger.error(e)
         except Exception as e:
             logger.exception("Error calling the Gemini API. Falling back to dummy response.")
-            # Fallback to dummy response on API error
+
     # Dummy deterministic behaviour for testing and offline runs
     return dummy_llm_response(prompt, system)
 
@@ -75,20 +78,20 @@ def dummy_llm_response(prompt: str, system: str) -> str:
 
         text_lower = review_text_to_analyze.lower()
 
+        sentiment_keywords = DUMMY_LLM_KEYWORDS.get("sentiments", {})
+        issue_keywords = DUMMY_LLM_KEYWORDS.get("issues", {})
+
         # simulate analysis JSON
         sentiment = "neutral"
-        if any(w in text_lower for w in ("love", "great", "excellent", "perfect", "five stars", "wonderful", "fantastic")):
+        if any(w in text_lower for w in sentiment_keywords.get("positive", [])):
             sentiment = "positive"
-        if any(w in text_lower for w in ("broken", "late", "damaged", "terrible", "hate", "ruined", "disappointed")):
+        if any(w in text_lower for w in sentiment_keywords.get("negative", [])):
             sentiment = "negative"
 
         issues = []
-        if any(w in text_lower for w in ("broken", "damaged", "ruined")):
-            issues.append("damaged product")
-        if "late" in text_lower or "delayed" in text_lower:
-            issues.append("late delivery")
-        if "refund" in text_lower or "return" in text_lower:
-            issues.append("wants refund")
+        for issue, keywords in issue_keywords.items():
+            if any(w in text_lower for w in keywords):
+                issues.append(issue)
         if sentiment == "positive":
             issues.append("good product quality")
         summary = "Customer feedback: " + (" ".join(issues) if issues else "general feedback.")
@@ -103,9 +106,9 @@ def dummy_llm_response(prompt: str, system: str) -> str:
     # Response generation dummy
     if "customer care" in system.lower() or "customercarebot" in system.replace(" ", "").lower():
         # produce a short empathetic reply
-        if "sentiment: negative" in text_lower or "broken" in text_lower or "damaged" in text_lower:
+        if "sentiment: negative" in text_lower or "broken" in text_lower or "damaged" in text_lower or "ruined" in text_lower:
             return "We're very sorry your item arrived damaged. We want to make this right—please allow us to arrange a replacement or refund. Thank you for bringing this to our attention."
-        if "sentiment: positive" in text_lower or "love" in text_lower or "works perfectly" in text_lower:
+        if "sentiment: positive" in text_lower or "love" in text_lower or "works perfectly" in text_lower or "fantastic" in text_lower:
             return "Thank you! We're thrilled to hear you love your new product. If you have tips to share, we'd appreciate it."
         if "wants refund" in text_lower:
             return "We're sorry to hear you're disappointed with the product. We've made a note of your feedback and will process your return."

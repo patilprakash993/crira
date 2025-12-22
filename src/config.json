@@ -1,0 +1,66 @@
+{
+    "SAFE_MODE": true,
+    "USE_REAL_LLM": true,
+    "GOOGLE_API_KEY": "AIzaSyAkPyfQNhBjiTRblxP6j1jV_PI5ToRCzRk",
+    "LLM_MODEL": "gemini-2.5-flash-lite",
+    "CRITICAL_KEYWORDS": [
+        "danger",
+        "dangerous",
+        "injury",
+        "urgent",
+        "immediate",
+        "recall",
+        "stop using",
+        "explosion",
+        "fire",
+        "safety",
+        "hazard",
+        "not safe",
+        "serious",
+        "critical",
+        "asap",
+        "ruined"
+    ],
+    "ALLOWED_PII_PLACEHOLDERS": [
+        "PII_EMAIL", "PII_PHONE", "PII_NAME", "PII_ADDRESS", "PII_ORDER"
+    ],
+    "ANALYSIS_OUTPUT_SCHEMA": ["sentiment", "key_issues_praise", "summary"],
+    "DUMMY_LLM_KEYWORDS": {
+        "sentiments": {
+            "positive": [
+                "love",
+                "great",
+                "excellent",
+                "perfect",
+                "five stars",
+                "wonderful",
+                "fantastic"
+            ],
+            "negative": [
+                "broken",
+                "late",
+                "damaged",
+                "terrible",
+                "hate",
+                "ruined",
+                "disappointed"
+            ]
+        },
+        "issues": {
+            "damaged product": [
+                "broken",
+                "damaged",
+                "ruined"
+            ],
+            "late delivery": ["late", "delayed"],
+            "wants refund": ["refund", "return"]
+        }
+    },
+    "PII_PATTERNS": {
+        "PII_EMAIL": "[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+",
+        "PII_PHONE": "\\+?\\d[\\d\\-\\s\\(\\)]{7,}\\d",
+        "PII_NAME": "\\b([A-Z][a-z]{1,}\\s(?!Street\\b|St\\b|Road\\b|Rd\\b|Avenue\\b|Ave\\b|Boulevard\\b|Blvd\\b|Lane\\b|Ln\\b|Drive\\b|Dr\\b)[A-Z][a-z]{1,})\\b",
+        "PII_ADDRESS": "\\b\\d{1,5}\\s(?:[A-Za-z0-9\\s,]+\\s(?:Street|St|Road|Rd|Avenue|Ave|Boulevard|Blvd|Lane|Ln|Drive\\b|Dr\\b|Court\\b|Ct\\b|Place\\b|Pl\\b)|[POBox\\s\\d]+)[,.\\sA-Za-z0-9-]*?(?=\\.\\s[A-Z]|\\Z)",
+        "PII_ORDER": "\\b(?:ORDER|Order|order)[\\-\\s_]?\\d{4,}\\b"
+    }
+}

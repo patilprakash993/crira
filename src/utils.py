@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import re
 import uuid
-from typing import Dict, Tuple, List
-from config import PII_PATTERNS
+from typing import Tuple, List
 
+from config import PII_PATTERNS
 def canonicalize_text(text: str) -> str:
     """
     Canonicalize input text to reduce injection risks using an allow-list approach.

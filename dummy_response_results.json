@@ -101,9 +101,9 @@
       "summary": "Customer feedback: damaged product"
     },
     "response": {
-      "response_text": "We're very sorry your item arrived damaged. We want to make this right—please allow us to arrange a replacement or refund. Thank you for bringing this to our attention.\n\n[CRITICAL_REF: 92c9f7ba-61cd-4cb1-afd0-fa898a33fc6a]",
+      "response_text": "We're very sorry your item arrived damaged. We want to make this right—please allow us to arrange a replacement or refund. Thank you for bringing this to our attention.\n\n[CRITICAL_REF: 43da4673-7209-420a-86db-b44078bf5fcc]",
       "is_critical": true,
-      "critical_ref": "[CRITICAL_REF: 92c9f7ba-61cd-4cb1-afd0-fa898a33fc6a]"
+      "critical_ref": "[CRITICAL_REF: 43da4673-7209-420a-86db-b44078bf5fcc]"
     }
   },
   {
@@ -133,9 +133,9 @@
       "summary": "Customer feedback: general feedback."
     },
     "response": {
-      "response_text": "Thank you for your feedback. We're here to help—please reach out so we can assist further.\n\n[CRITICAL_REF: fab67ee3-48cb-4b67-b72f-f45f7c01c7aa]",
+      "response_text": "Thank you for your feedback. We're here to help—please reach out so we can assist further.\n\n[CRITICAL_REF: a1955fbc-c9bb-442c-ab56-39ab651dec96]",
       "is_critical": true,
-      "critical_ref": "[CRITICAL_REF: fab67ee3-48cb-4b67-b72f-f45f7c01c7aa]"
+      "critical_ref": "[CRITICAL_REF: a1955fbc-c9bb-442c-ab56-39ab651dec96]"
     }
   },
   {
