@@ -1,7 +1,7 @@
 {
     "SAFE_MODE": true,
     "USE_REAL_LLM": true,
-    "GOOGLE_API_KEY": "AIzaSyAkPyfQNhBjiTRblxP6j1jV_PI5ToRCzRk",
+    "GOOGLE_API_KEY": null,
     "LLM_MODEL": "gemini-2.5-flash-lite",
     "CRITICAL_KEYWORDS": [
         "danger",
