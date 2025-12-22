@@ -79,159 +79,10 @@ This section provides a complete guide to deploying the CRIRA application as a c
 
 First, create a `Dockerfile` in the root of the project to containerize the application.
 
-```Dockerfile
-# Dockerfile
-
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy the requirements file and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the application source code
-COPY src/ ./src
-COPY reviews.json .
-
-# Set the entrypoint for the container
-# This example assumes you might adapt main.py to be a web server (e.g., with Flask)
-# For a script-based run, you might use a different CMD or entrypoint.
-# For now, we set a command that can execute the script.
-CMD ["python", "src/main.py"]
-```
-
 ### Step 2: Terraform Configuration
 
 Create a file named `main.tf` in the project root to define the GCP infrastructure.
 
-```terraform
-// main.tf
-
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 5.0"
-    }
-  }
-}
-
-variable "gcp_project_id" {
-  description = "The GCP project ID."
-  type        = string
-}
-
-variable "gcp_region" {
-  description = "The GCP region for resources."
-  type        = string
-  default     = "us-central1"
-}
-
-provider "google" {
-  project = var.gcp_project_id
-  region  = var.gcp_region
-}
-
-// 1. Enable necessary APIs
-resource "google_project_service" "apis" {
-  for_each = toset([
-    "run.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "secretmanager.googleapis.com",
-    "iam.googleapis.com"
-  ])
-  service                    = each.key
-  disable_on_destroy         = false
-  disable_dependent_services = true
-}
-
-// 2. Create a repository to store the Docker image
-resource "google_artifact_registry_repository" "crira_repo" {
-  repository_id = "crira-app-repo"
-  format        = "DOCKER"
-  location      = var.gcp_region
-  description   = "Docker repository for CRIRA application"
-  depends_on    = [google_project_service.apis]
-}
-
-// 3. Create a secret for the Google API Key
-resource "google_secret_manager_secret" "google_api_key_secret" {
-  secret_id = "GOOGLE_API_KEY"
-  replication {
-    automatic = true
-  }
-  depends_on = [google_project_service.apis]
-}
-
-resource "google_secret_manager_secret_version" "google_api_key_version" {
-  secret      = google_secret_manager_secret.google_api_key_secret.id
-  secret_data = "your-google-api-key-here" // Replace with your actual key or use a variable
-}
-
-// 4. Create a service account for Cloud Run for least privilege
-resource "google_service_account" "crira_sa" {
-  account_id   = "crira-run-sa"
-  display_name = "CRIRA Cloud Run Service Account"
-  depends_on   = [google_project_service.apis]
-}
-
-// Grant the service account access to the secret
-resource "google_secret_manager_secret_iam_member" "secret_accessor" {
-  project   = google_secret_manager_secret.google_api_key_secret.project
-  secret_id = google_secret_manager_secret.google_api_key_secret.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.crira_sa.email}"
-}
-
-// 5. Define and deploy the Cloud Run service
-resource "google_cloud_run_v2_service" "crira_service" {
-  name     = "crira-service"
-  location = var.gcp_region
-  
-  template {
-    service_account = google_service_account.crira_sa.email
-
-    containers {
-      image = "${var.gcp_region}-docker.pkg.dev/${var.gcp_project_id}/${google_artifact_registry_repository.crira_repo.repository_id}/crira-app:latest"
-      
-      env {
-        name  = "CRIRA_USE_REAL_LLM"
-        value = "true"
-      }
-      env {
-        name  = "CRIRA_SAFE_MODE"
-        value = "true"
-      }
-      env {
-        name = "GOOGLE_API_KEY"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.google_api_key_secret.secret_id
-            version = "latest"
-          }
-        }
-      }
-    }
-  }
-
-  depends_on = [
-    google_artifact_registry_repository.crira_repo,
-    google_secret_manager_secret_iam_member.secret_accessor
-  ]
-}
-
-// 6. Allow public access to the Cloud Run service (for direct invocation)
-resource "google_cloud_run_service_iam_member" "public_access" {
-  location = google_cloud_run_v2_service.crira_service.location
-  project  = google_cloud_run_v2_service.crira_service.project
-  service  = google_cloud_run_v2_service.crira_service.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
-```
 
 ### Step 3: Deployment Workflow
 
@@ -251,13 +102,6 @@ Follow these commands from your terminal in the project root.
     ```
 
 3.  **Push the Docker Image to Artifact Registry:**
-    ```bash
-    # Configure Docker to authenticate with Artifact Registry
-    gcloud auth configure-docker ${YOUR_GCP_REGION}-docker.pkg.dev
-
-    # Push the image
-    docker push $IMAGE_TAG
-    ```
 
 4.  **Initialize and Apply Terraform:**
     ```bash
