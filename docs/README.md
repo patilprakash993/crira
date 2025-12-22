@@ -57,7 +57,7 @@ CRIRA is built with a security-first mindset, implementing several layers of pro
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/patilprakash993/crira.git
 cd crira
 ```
 
@@ -80,6 +80,7 @@ The application is configured via environment variables. You can set them in you
 **For Dummy LLM (Default, for testing):**
 
 No API key is needed. The application runs in `SAFE_MODE` with the dummy LLM by default.
+Either set enivronment variable or change in config.json.
 
 ```bash
 # These are the default values, so setting them is optional for dummy mode
@@ -90,6 +91,7 @@ export CRIRA_USE_REAL_LLM="false"
 **For Real LLM (Google Gemini):**
 
 To use the actual Gemini model, you need a Google AI Studio API key.
+Either set enivronment variable or change in config.json.
 
 ```bash
 export GOOGLE_API_KEY="your_google_api_key_here"
@@ -130,7 +132,7 @@ The project includes a comprehensive test suite using `pytest` and a linter (`Ru
 
 To run the full test suite:
 ```bash
-pytest
+pytest -v
 ```
 
 The tests cover critical functionality, including:
