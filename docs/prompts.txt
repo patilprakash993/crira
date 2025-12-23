@@ -1,1 +1,90 @@
 
+Chatgpt
+
+1. Act as a expert in AI and ML engineer and analyze the take home task attached as pdf and provide a detailed breakdown of the implementation approach.
+
+2. Act as a expert in AI and ML engineer, Deliver a complete end-to-end implementation of the solution, including all required components.
+
+3. Act as a expert in AI and ML engineer, Create a GitHub Actions workflow that runs tests and performs lint checks using Ruff.
+
+4. Act as a expert in AI and ML engineer, Produce a detailed system architecture diagram and explanation for the solution.
+
+GEMINI
+
+5. Act as a expert in AI and ML engineer and refactor the code to move all hardcoded messages and responses into a config.json file.
+
+6. Act as a AI ML expert and replace the current OpenAI integration with Gemini and evaluate performance improvements.
+
+6. Act as a expert in AI and ML engineer and verify that every listed task has been implemented correctly and meets the specified requirements.
+
+Specific Tasks:
+1. LLM Selection & Justification:
+a. b. Choose a foundational LLM (API-based; no local hosting/fine-tuning required).
+Provide a clear justification for your selection based on its technical
+characteristics, cost-effectiveness for the described use case, and perceived
+suitability for both analysis and generation tasks.
+c. If you wish to opt for a non-LLM approach, that is also acceptable, however
+clearly cite your rationale.
+2. Core Feature Implementation (Python):
+a. Review Analysis Module:
+i. Implement a function to take raw review text as input.
+ii. Extract sentiment (e.g., positive, negative, neutral), key_issues_praise (list of
+strings), and a summary (1-2 sentences).
+iii. Implement PII detection and redaction: Identify common PII categories
+(names, emails, phone numbers, addresses, order IDs) and replace them
+with generic placeholders (e.g., [PII_NAME], [PII_EMAIL]).
+b. Response Generation Module:
+i. Implement a function that takes the analyzed review data (sentiment,
+issues, summary, redacted review text) and generates an empathetic,
+professional, and on-brand customer response.
+ii. Ensure the response strictly adheres to the business rules provided (e.g.,
+no PII, appropriate tone).
+iii. Implement the "Critical Review" Policy: Detect urgent reviews based on
+keywords and incorporate the [CRITICAL_REF: <UUID>] dynamically
+generated identifier correctly, without being susceptible to the subtle
+prompt injection described in the "Key Business Rule" section.
+3. Advanced Prompt Engineering:
+a. Demonstrate sophisticated prompt engineering techniques (e.g., system roles,
+few-shot examples, chain-of-thought, negative constraints, output formatting
+instructions – JSON preferred) to achieve high-quality, structured output and
+robust behavior.
+b. Specifically, design prompts that make your response generation resilient to
+prompt injection attempts, both overt (from the reviews.json) and the subtle
+policy-based one.
+4. Comprehensive Risk Mitigation & Demonstration:
+a. In-Code Implementation:
+i. You must implement practical mitigation strategies within your Python
+code for PII detection/redaction (as part of Task 2) and prompt injection
+protection for both review analysis (to prevent LLM misbehavior during
+analysis) and response generation (to prevent malicious outputs).
+ii. Your prompt injection defenses should explicitly address the subtle attack
+outlined in the "Key Business Rule" section.
+b. Demonstration: Provide a toggleable "safe" vs. "unsafe" mode (e.g., an
+environment variable, a command-line argument, or a config flag).
+i. ii. In "safe" mode, all implemented mitigations should be active.
+In "unsafe" mode, the most critical safeguards for PII redaction and the
+subtle prompt injection defense related to the CRITICAL_REF policy
+should be demonstrably bypassed. This is to explicitly show the
+vulnerability and the effectiveness of your mitigations.
+c. Documentation: A thorough discussion of all potential LLM risks (e.g.,
+hallucination, bias, data privacy, security vulnerabilities like prompt injection,
+toxicity) and their proposed mitigation strategies (both implemented and
+theoretical/architectural) is required in your design document.
+5. Production Readiness & Architecture:
+a. System Design: Provide a high-level architectural diagram and a detailed
+explanation in your design document for deploying CRIRA in a GCP environment.
+b. Monitoring & Versioning: Discuss strategies for monitoring system performance,
+LLM cost, and output quality in production. Explain how you would handle LLM
+model updates/versioning for a continuous deployment pipeline. Actual cloud
+deployment is not required.
+6. Code Quality & Testing:
+a. Adherence to PEP8, type hints, docstrings, and comprehensive unit tests for core
+logic (e.g., PII redaction, prompt construction, specific business rule
+implementation) and key risk mitigation components are essential.
+b. Include tests specifically targeting prompt injection scenarios, including the
+subtle one.
+7. Documentation & Communication:
+a. Clear, professional documentation (README.md for setup/usage,
+design_document.md for architecture, choices, trade-offs).
+b. Explicitly articulate your design choices, trade-offs made, and how you
+addressed each requirement.
